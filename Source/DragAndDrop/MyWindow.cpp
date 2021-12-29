@@ -4,44 +4,63 @@
 #include "MyWindow.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
 
+void UMyWindow::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+}
+
 FReply UMyWindow::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+	Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 	
-	/*
-	FEventReply DetectDragIfPressed_ReturnValue =  UWidgetBlueprintLibrary::DetectDragIfPressed(
-		InMouseEvent, this, EKeys::LeftMouseButton);
+	/*FEventReply ReplyResult =
+		UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
+	return ReplyResult.NativeReply;*/
 
-	return DetectDragIfPressed_ReturnValue.NativeReply; 
-	*/
-
-	FEventReply Reply;
-	Reply.NativeReply = FReply::Handled();
-	
-	TSharedPtr<SWidget> SlateWidgetDetectingDrag = this->GetCachedWidget();
-	if ( SlateWidgetDetectingDrag.IsValid() )
-	{
-		Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), EKeys::LeftMouseButton);
-	}
-	
-	return Reply.NativeReply;
+	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
 }
 
 void UMyWindow::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
 	UDragDropOperation*& OutOperation)
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	UDragWidget* DragDropOperation = NewObject<UDragWidget>();
+	this->SetVisibility(ESlateVisibility::HitTestInvisible);
 	
-	//UDragDropOperation* DragDropOperation = UWidgetBlueprintLibrary::CreateDragDropOperation(UDragDropOperation::StaticClass());
-	
-	UDragWidget* DragDropOperation = NewObject<class UDragWidget>();
+	DragDropOperation->WidgetReference = this;
+	DragDropOperation->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());;
+
 	DragDropOperation->DefaultDragVisual = this;
 	DragDropOperation->Pivot = EDragPivot::MouseDown;
 	
-	DragDropOperation->WidgetReference = this;
-	DragDropOperation->DragOffset = DragOffset;
-	
-	this->RemoveFromParent();
-	
 	OutOperation = DragDropOperation;
 }
+
+void UMyWindow::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	RemoveFromParent();
+}
+
+FReply UMyWindow::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey)
+{
+	if ( InMouseEvent.GetEffectingButton() == DragKey /*|| PointerEvent.IsTouchEvent()*/ )
+	{
+		FEventReply Reply;
+		Reply.NativeReply = FReply::Handled();
+		
+		if ( WidgetDetectingDrag )
+		{
+			TSharedPtr<SWidget> SlateWidgetDetectingDrag = WidgetDetectingDrag->GetCachedWidget();
+			if ( SlateWidgetDetectingDrag.IsValid() )
+			{
+				Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), DragKey);
+				return Reply.NativeReply;
+			}
+		}
+	}
+
+	return FReply::Unhandled();
+}
+

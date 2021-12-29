@@ -18,14 +18,9 @@ class DRAGANDDROP_API UMyWindow : public UUserWidget
 protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
-
-private:
-	FVector2D DragOffset;
-};
-
-
-
-//private:
-//UDragWidget* DragWidget;
-
+	void NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	
+	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
+
+	virtual void NativeOnInitialized() override;
+};	
