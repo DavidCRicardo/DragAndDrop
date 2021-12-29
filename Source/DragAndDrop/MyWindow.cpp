@@ -4,12 +4,6 @@
 #include "MyWindow.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
 
-void UMyWindow::NativeOnInitialized()
-{
-	Super::NativeOnInitialized();
-
-}
-
 FReply UMyWindow::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
