@@ -9,4 +9,4 @@ Drag and Drop windows on HUD
 [![Youtube Video](https://i.imgur.com/rVbER68.png)](https://youtu.be/uj-7h8agF1w)
 
 ## Credits
-Thanks to F4rious for fixing a couple of annoying bug.
+Thanks to F4rious for fixing a couple of annoying bugs.
