@@ -15,6 +15,18 @@ FReply UMyWindow::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPo
 	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
 }
 
+FEventReply UMyWindow::RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	FEventReply reply;
+	reply.NativeReply = NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	return reply;
+}
+
+FReply UMyWindow::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	return RedirectMouseDownToWidget(InGeometry, InMouseEvent).NativeReply;
+}
+
 void UMyWindow::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
 	UDragDropOperation*& OutOperation)
 {
